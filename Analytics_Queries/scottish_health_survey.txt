@@ -1,0 +1,224 @@
+SELECT 
+	  dat.Archived_dataset_serial_number_of_Individual as Archived_dataset_serial_number_of_Individual
+	, dic_sy.value_label as survey_year
+	, CAST(dat.Age_of_respondent as float) as age_of_respondent
+	, CASE 
+		WHEN CAST(dat.Age_of_respondent as float) <2 THEN '00 to 01'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 2 AND 4 THEN '02 to 04'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 5 AND 7 THEN '05 to 07'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 8 AND 10 THEN '08 to 10'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 11 AND 12 THEN '11 to 12'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 13 AND 15 THEN '13 to 15'
+		WHEN CAST(dat.Age_of_respondent as float) >15 THEN '16+'
+	  ELSE 'Other'
+	  END as age_group
+	, dic_sx.value_label as sex_of_respondent
+	, dic_SIMD_harm.value_label as SIMD_2020_quintiles_SG_harmonised
+	, dic_SIMD_airt.value_label as SIMD_2020_quintiles_as_used_in_report_tables
+	, CASE dat.[Children:_Summary_classification_activity_levels_-_All_activities,_no_lower_limits_(all_7_days_X_60+mins)]
+		WHEN '-1' THEN 'Unavailable'
+		WHEN '-2' THEN 'Unavailable'
+		WHEN '1' THEN 'Group 1:60+min on all 7 days'
+		WHEN '2' THEN 'Group 2:30-59min on all 7 days'
+		WHEN '3' THEN 'Group 3:Lower level of activity'
+		ELSE 'Unavailable'
+	  END  as 'Children:_Summary_classification_activity_levels_-_All_activities,_no_lower_limits_(all_7_days_X_60+mins)'
+
+	,CASE dat.[Children:_Summary_classification_activity_levels_-_All_activities,_INCLUDING_SCHOOL_no_lower_limits_(all_7_days_X_60+mins)]
+		WHEN '-1' THEN 'Unavailable'
+		WHEN '-2' THEN 'Unavailable'
+		WHEN '1' THEN 'Group 1:60+min on all 7 days'
+		WHEN '2' THEN 'Group 2:30-59min on all 7 days'
+		WHEN '3' THEN 'Group 3:Lower level of activity'
+		ELSE 'Unavailable'
+	  END  as 'Children:_Summary_classification_activity_levels_-_All_activities_INCLUDING_SCHOOL_no_lower_limits_(all_7_days_X_60+mins)'
+
+	, [Number_of_days_walking_5mins+]
+	, [Number_of_days_active_playing_(no_lower_limits)]
+	, [Children:_Days_last_week_(no_lower_limit)_total_activities]
+	, [Children:_Time_last_week_(minutes)_total_activities_-_no_lower_limit]
+
+	, CASE 
+		WHEN [Number_of_days_walking_5mins+] = 7 THEN CAST(1 as BIT)
+		WHEN [Number_of_days_walking_5mins+] BETWEEN 1 AND 6 THEN CAST(0 as BIT)
+		ELSE NULL
+	  END as 'walk_5mins+_every_day'
+	, CASE 
+		WHEN [Number_of_days_active_playing_(no_lower_limits)] = 7 THEN CAST(1 as BIT)
+		WHEN [Number_of_days_active_playing_(no_lower_limits)] BETWEEN 1 AND 6 THEN CAST(0 as BIT)
+		ELSE NULL
+	  END as 'active_playing_(no_lower_limits)_every_day'
+
+	, dic_walk5.value_label as 'child_physical_activity:_walked_at_least_5_minutes_in_last_week'
+	, dic_walkp.value_label as 'child_physical_activity:_walking_pace'
+	, dic_slw.[Value_Label] as 'child_physical_activity:_any_sport_in_last_week'
+	, dic_slw.[Value_Label] as 'child_physical_activity:_any_activity_at_school_in_last_week'
+
+	, [Individual_combined_16171819_weight_after_calibration]
+	, [Child_combined_16171819_weight_after_calibration]
+	, [Bio_16171819_weight_after_calibration]
+	, [Child_main_sample_combined_16171819_weight_after_calibration]
+
+	, comb2.[Individual_weight_17181921_after_calibration]
+	, comb2.[Child_weight_17181921_after_calibration]
+	, comb2.[iBio_weight_17181921_after_calibration]
+	, comb2.[Child_main_sample_weight_17181921_after_calibration]
+
+	, [Child_combined_16171819_weight_after_calibration] as child_weight_final
+
+	, [Child_physical_activity:_Wksph_+_wkspm_in_minutes]
+	, [Child_physical_activity:_Wesph_+_wespm_in_minutes]
+	, [Child_physical_activity:_Wesph_+_wespm_in_minutes]+[Child_physical_activity:_Wksph_+_wkspm_in_minutes] as 'Child_physical_activity:_wk+we_sports_minutes_total'
+
+	, [Child_physical_activity:_Wkacth_+_wkactm_in_minutes]
+	, [Child_physical_activity:_Weacth_+_weactm_in_minutes]
+	, [Child_physical_activity:_Weacth_+_weactm_in_minutes]+[Child_physical_activity:_Wkacth_+_wkactm_in_minutes] as 'Child_physical_activity:_wk+we_activities_minutes_total'
+
+	, [Child_physical_activity:_Hwkhrs_+_hwkmin_in_minutes]
+
+	, [Child_physical_activity:_Wlkhrs_+_wlkmin_in_minutes]
+
+	, [Child_physical_activity:_Minutes_spent_doing_activity_at_school_in_last_week]
+	, [Child_physical_activity:_Minutes_spent_doing_activities_on_each_weekday]
+	, [Child_physical_activity:_Minutes_spent_doing_activities_on_weekend]
+	, [Child_physical_activity:_Minutes_spent_doing_housework_or_gardening]
+	, [Child_physical_activity:_Minutes_spent_doing_sport_on_weekday]
+	, [Child_physical_activity:_Minutes_spent_doing_sport_on_weekend]
+	, [Child_physical_activity:_Minutes_spent_walking_on_each_day]
+
+	, [Number_of_days_sports/exercise_(no_lower_limit)]
+	, [Number_of_days_housework/gardening_(15+)]
+
+FROM base.shes16171819i_eul dat
+INNER JOIN (	SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='survey_year') dic_sy 
+	ON Cast(dat.Survey_Year as float)=dic_sy.value
+LEFT JOIN ( SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='sex_of_respondent') dic_sx 
+	ON Cast(dat.Sex_of_respondent as float)=dic_sx.value
+LEFT JOIN ( SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='SIMD_2020_quintiles_SG_harmonised') dic_SIMD_harm 
+	ON Cast(dat.SIMD_2020_quintiles_SG_harmonised as float)=dic_SIMD_harm.value
+LEFT JOIN ( SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='SIMD_2020_quintiles_as_used_in_report_tables') dic_SIMD_airt 
+	ON Cast(dat.SIMD_2020_quintiles_as_used_in_report_tables as float)=dic_SIMD_airt.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_walked_at_least_5_minutes_in_last_week') dic_walk5 
+	ON Cast(dat.[Child_physical_activity:_Walked_at_least_5_minutes_in_last_week] as float)=dic_walk5.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_any_sport_in_last_week') dic_slw 
+	ON Cast(dat.[Child_physical_activity:_Any_sport_in_last_week] as float)=dic_slw.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_walking_pace') dic_walkp 
+	ON Cast(dat.[Child_physical_activity:_Walking_pace] as float)=dic_walkp.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_any_activity_at_school_in_last_week') dic_acts 
+	ON Cast(dat.[Child_physical_activity:_Any_activity_at_school_in_last_week] as float)=dic_acts.value
+LEFT JOIN base.shes17181921i_eul comb2 
+	ON dat.Archived_dataset_serial_number_of_Individual = comb2.Archived_dataset_serial_number_of_Individual
+
+UNION
+
+SELECT 
+	  dat.Archived_dataset_serial_number_of_Individual as Archived_dataset_serial_number_of_Individual
+	, dic_sy.value_label as survey_year
+	, CAST(dat.Age_of_respondent as float) as age_of_respondent
+	, CASE 
+		WHEN CAST(dat.Age_of_respondent as float) <2 THEN '00 to 01'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 2 AND 4 THEN '02 to 04'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 5 AND 7 THEN '05 to 07'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 8 AND 10 THEN '08 to 10'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 11 AND 12 THEN '11 to 12'
+		WHEN CAST(dat.Age_of_respondent as float) BETWEEN 13 AND 15 THEN '13 to 15'
+		WHEN CAST(dat.Age_of_respondent as float) >15 THEN '16+'
+	  ELSE 'Other'
+	  END as age_group
+	, dic_sx.value_label as sex_of_respondent
+	, dic_SIMD_harm.value_label as SIMD_2020_quintiles_SG_harmonised
+	, dic_SIMD_airt.value_label as SIMD_2020_quintiles_as_used_in_report_tables
+	, CASE dat.[Children:_Summary_classification_activity_levels_-_All_activities_no_lower_limits_(all_7_days_X_60+mins)]
+		WHEN '-1' THEN 'Unavailable'
+		WHEN '-2' THEN 'Unavailable'
+		WHEN '1' THEN 'Group 1:60+min on all 7 days'
+		WHEN '2' THEN 'Group 2:30-59min on all 7 days'
+		WHEN '3' THEN 'Group 3:Lower level of activity'
+		ELSE 'Unavailable'
+	  END  as sixtymins_activity_all_7 
+
+	,CASE dat.[Children:_Summary_classification_activity_levels_-_All_activities_INCLUDING_SCHOOL_no_lower_limits_(all_7_days_X_60+mins)]
+		WHEN '-1' THEN 'Unavailable'
+		WHEN '-2' THEN 'Unavailable'
+		WHEN '1' THEN 'Group 1:60+min on all 7 days'
+		WHEN '2' THEN 'Group 2:30-59min on all 7 days'
+		WHEN '3' THEN 'Group 3:Lower level of activity'
+		ELSE 'Unavailable'
+	  END  as 'Children:_Summary_classification_activity_levels_-_All_activities_INCLUDING_SCHOOL_no_lower_limits_(all_7_days_X_60+mins)'
+
+	, [Number_of_days_walking_5mins+]
+	, [Number_of_days_active_playing_(no_lower_limits)]
+	, [Children:_Days_last_week_(no_lower_limit)_total_activities]
+	, [Children:_Time_last_week_(minutes)_total_activities_-_no_lower_limit]
+
+
+	, CASE 
+		WHEN [Number_of_days_walking_5mins+] = 7 THEN CAST(1 as BIT)
+		WHEN [Number_of_days_walking_5mins+] BETWEEN 1 AND 6 THEN CAST(0 as BIT)
+		ELSE NULL
+	  END as 'walk_5mins+_every_day'
+	, CASE 
+		WHEN [Number_of_days_active_playing_(no_lower_limits)] = 7 THEN CAST(1 as BIT)
+		WHEN [Number_of_days_active_playing_(no_lower_limits)] BETWEEN 1 AND 6 THEN CAST(0 as BIT)
+		ELSE NULL
+	  END as 'active_playing_(no_lower_limits)_every_day'
+
+	, dic_walk5.value_label as 'child_physical_activity:_walked_at_least_5_minutes_in_last_week'
+	, dic_walkp.value_label as 'child_physical_activity:_walking_pace'
+	, dic_slw.[Value_Label] as 'child_physical_activity:_any_sport_in_last_week'
+	, dic_slw.[Value_Label] as 'child_physical_activity:_any_activity_at_school_in_last_week'
+
+	, NULL
+	, NULL
+	, NULL
+	, NULL
+
+	, comb2.[Individual_weight_17181921_after_calibration]
+	, comb2.[Child_weight_17181921_after_calibration]
+	, comb2.[iBio_weight_17181921_after_calibration]
+	, comb2.[Child_main_sample_weight_17181921_after_calibration]
+
+	, comb2.[Child_weight_17181921_after_calibration] as child_weight_final
+
+	, [Child_physical_activity:_Wksph_+_wkspm_in_minutes]
+	, [Child_physical_activity:_Wesph_+_wespm_in_minutes]
+	, [Child_physical_activity:_Wesph_+_wespm_in_minutes]+[Child_physical_activity:_Wksph_+_wkspm_in_minutes] as 'Child_physical_activity:_wk+we_sports_minutes_total'
+
+	, [Child_physical_activity:_Wkacth_+_wkactm_in_minutes]
+	, [Child_physical_activity:_Weacth_+_weactm_in_minutes]
+	, [Child_physical_activity:_Weacth_+_weactm_in_minutes]+[Child_physical_activity:_Wkacth_+_wkactm_in_minutes] as 'Child_physical_activity:_wk+we_activities_minutes_total'
+
+	, [Child_physical_activity:_Hwkhrs_+_hwkmin_in_minutes]
+
+	, [Child_physical_activity:_Wlkhrs_+_wlkmin_in_minutes]
+
+	, [Child_physical_activity:_Minutes_spent_doing_activity_at_school_in_last_week]
+	, [Child_physical_activity:_Minutes_spent_doing_activities_on_each_weekday]
+	, [Child_physical_activity:_Minutes_spent_doing_activities_on_weekend]
+	, [Child_physical_activity:_Minutes_spent_doing_housework_or_gardening]
+	, [Child_physical_activity:_Minutes_spent_doing_sport_on_weekday]
+	, [Child_physical_activity:_Minutes_spent_doing_sport_on_weekend]
+	, [Child_physical_activity:_Minutes_spent_walking_on_each_day]
+
+	, [Number_of_days_sports/exercise_(no_lower_limit)]
+	, [Number_of_days_housework/gardening_(15+)]
+
+FROM base.shes21i_eul dat
+INNER JOIN (	SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='survey_year') dic_sy 
+	ON Cast(dat.Survey_Year as float)=dic_sy.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='sex_of_respondent') dic_sx 
+	ON Cast(dat.Sex_of_respondent as float)=dic_sx.value
+LEFT JOIN ( SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='SIMD_2020_quintiles_SG_harmonised') dic_SIMD_harm 
+	ON Cast(dat.[SIMD_2020_quintiles_-_SG_harmonised] as float)=dic_SIMD_harm.value
+LEFT JOIN ( SELECT * FROM base.shes16171819i_eul_data_dictionary WHERE lower(field_name)='SIMD_2020_quintiles_as_used_in_report_tables') dic_SIMD_airt 
+	ON Cast(dat.[SIMD_2020_quintiles_-_as_used_in_report_tables] as float)=dic_SIMD_airt.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_walked_at_least_5_minutes_in_last_week') dic_walk5 
+	ON Cast(dat.[Child_physical_activity:_Walked_at_least_5_minutes_in_last_week] as float)=dic_walk5.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_any_sport_in_last_week') dic_slw 
+	ON Cast(dat.[Child_physical_activity:_Any_sport_in_last_week] as float)=dic_slw.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_walking_pace') dic_walkp 
+	ON Cast(dat.[Child_physical_activity:_Walking_pace] as float)=dic_walkp.value
+LEFT JOIN ( SELECT * FROM base.shes17181921i_eul_data_dictionary WHERE lower(field_name)='child_physical_activity:_any_activity_at_school_in_last_week') dic_acts 
+	ON Cast(dat.[Child_physical_activity:_Any_activity_at_school_in_last_week] as float)=dic_acts.value
+LEFT JOIN base.shes17181921i_eul comb2 
+	ON dat.Archived_dataset_serial_number_of_Individual = comb2.Archived_dataset_serial_number_of_Individual

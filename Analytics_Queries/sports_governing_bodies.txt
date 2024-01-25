@@ -1,0 +1,209 @@
+WITH sgb_data as (
+
+SELECT 
+	'14-15' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_14_15, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_14_15 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'14-15' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_14_15, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_14_15 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'15-16' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_15_16, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_15_16 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'15-16' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_15_16, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_15_16 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'16-17' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_16_17, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_16_17 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'16-17' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_16_17, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_16_17 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'17-18' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_17_18, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_17_18 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'17-18' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_17_18, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_17_18 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'18-19' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_18_19, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_18_19 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'18-19' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_18_19, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_18_19 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'19-20' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_19_20, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_19_20 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'19-20' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_19_20, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_19_20 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'20-21' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_20_21, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_20_21 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'20-21' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_20_21, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_20_21 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'21-22' as year,
+	'female' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_female_21_22, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_female_21_22 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+UNION ALL
+
+SELECT 
+	'21-22' as year,
+	'male' as sex,
+	dat.SGB_Name,
+	CAST ( IIF( TRANSLATE(dat.junior_male_21_22, 'abcdefghijklmnopqrstuvwxyz+()- ,#+/\', '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@') like '%@%' , NULL, dat.junior_male_21_22 )  as INT) as number
+FROM base.sgb_membership_14_21 dat
+
+)
+SELECT 
+	dat.year,
+	dat.sex,
+	dat.SGB_name,
+	CASE dat.SGB_Name
+		WHEN 'Angling'  THEN 'Outdoor'
+		WHEN 'Aquatics'  THEN 'Indoor'
+		WHEN 'Archery'  THEN 'Outdoor'
+		WHEN 'Athletics'  THEN 'Outdoor'
+		WHEN 'Badminton'  THEN 'Indoor'
+		WHEN 'Basketball'  THEN 'Indoor'
+		WHEN 'Bowling'  THEN 'Indoor'
+		WHEN 'Boxing'  THEN 'Indoor'
+		WHEN 'Canoe'  THEN 'Outdoor'
+		WHEN 'Cricket'  THEN 'Outdoor'
+		WHEN 'Croquet'  THEN 'Outdoor'
+		WHEN 'Curling'  THEN 'Indoor'
+		WHEN 'Cycling'  THEN 'Outdoor'
+		WHEN 'Dancesport'  THEN 'Indoor'
+		WHEN 'Disability Sport'  THEN 'Unknown'
+		WHEN 'Equestrian'  THEN 'Outdoor'
+		WHEN 'Fencing'  THEN 'Indoor'
+		WHEN 'Football'  THEN 'Outdoor'
+		WHEN 'Golf'  THEN 'Outdoor'
+		WHEN 'Gymnastics'  THEN 'Indoor'
+		WHEN 'Handball'  THEN 'Indoor'
+		WHEN 'Hang Gliding and Paragliding'  THEN 'Outdoor'
+		WHEN 'Hockey'  THEN 'Outdoor'
+		WHEN 'Judo'  THEN 'Indoor'
+		WHEN 'Jui-jitsu'  THEN 'Indoor'
+		WHEN 'Karate'  THEN 'Indoor'
+		WHEN 'Lacrosse'  THEN 'Outdoor'
+		WHEN 'Modern Pentathlon'  THEN 'Outdoor'
+		WHEN 'Motor Sports'  THEN 'Outdoor'
+		WHEN 'Mountaineering'  THEN 'Outdoor'
+		WHEN 'Netball'  THEN 'Indoor'
+		WHEN 'Orienteering'  THEN 'Outdoor'
+		WHEN 'Ramblers'  THEN 'Outdoor'
+		WHEN 'Rowing'  THEN 'Outdoor'
+		WHEN 'Rugby League'  THEN 'Outdoor'
+		WHEN 'Rugby Union'  THEN 'Outdoor'
+		WHEN 'Sailing'  THEN 'Outdoor'
+		WHEN 'Shinty'  THEN 'Outdoor'
+		WHEN 'Snowsport'  THEN 'Outdoor'
+		WHEN 'Squash'  THEN 'Indoor'
+		WHEN 'Sub Aqua'  THEN 'Outdoor'
+		WHEN 'Surfing'  THEN 'Outdoor'
+		WHEN 'Table Tennis'  THEN 'Indoor'
+		WHEN 'Taekwondo'  THEN 'Indoor'
+		WHEN 'Target Shooting'  THEN 'Outdoor'
+		WHEN 'Tennis'  THEN 'Outdoor'
+		WHEN 'Triathlon'  THEN 'Outdoor'
+		WHEN 'Tug of War'  THEN 'Outdoor'
+		WHEN 'Volleyball'  THEN 'Indoor'
+		WHEN 'Waterski and Wakeboard'  THEN 'Outdoor'
+		WHEN 'Wrestling'  THEN 'Indoor'
+	END as indoor_outdoor,
+			
+
+	def.jr_definition,
+	dat.number
+FROM sgb_data dat
+LEFT JOIN base.sgb_defn_of_jr_member_nov_22 def 
+	ON dat.SGB_Name = def.SGB_Name

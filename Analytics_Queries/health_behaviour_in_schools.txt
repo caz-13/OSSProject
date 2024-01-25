@@ -1,0 +1,50 @@
+SELECT 
+	HBSC_round as year,
+	country,
+	CASE 
+		WHEN country IN ('Denmark','Estonia','Finland','Iceland','Ireland','Latvia','Lithuania','Norway','Scotland','Sweden','England','Wales') THEN 'Northern Europe'
+		WHEN country IN ('Czech Republic','Poland','Romania','Hungary','Bulgaria','Moldova','Ukraine','Belarus','Russia','Republic of Moldova','Slovakia') THEN 'Eastern Europe'
+		WHEN country IN ('France','Belgium (Flemish)','Belgium (French)','Germany','Austria','Netherlands','Switzerland','Luxembourg') THEN 'Western Europe'
+		WHEN country IN ('Portugal','Spain','Italy','Croatia','Macedonia','Greece','Albania','Serbia','Slovenia','Malta') THEN 'Southern Europe'
+		WHEN country IN ('Armenia','Azerbaijan','Georgia','Israel','Turkey') THEN 'Western Asia'
+		WHEN country IN ('Kazakhstan') THEN 'Central Asia'
+		WHEN country IN ('Canada','Greenland') THEN 'Northern America'
+	ELSE country
+	END as region, 
+		CASE 
+		WHEN country = 'Scotland' THEN 'Scotland'
+		WHEN country IN ('England','Wales','Ireland') THEN 'Other UK & Ireland'
+		WHEN country IN ('Denmark','Estonia','Finland','Iceland','Latvia','Lithuania','Norway','Sweden') THEN 'Other Northern Europe'
+		WHEN country IN ('Czech Republic','Poland','Romania','Hungary','Bulgaria','Moldova','Ukraine','Belarus','Russia','Republic of Moldova','Slovakia') THEN 'Eastern Europe'
+		WHEN country IN ('France','Belgium (Flemish)','Belgium (French)','Germany','Austria','Netherlands','Switzerland','Luxembourg') THEN 'Western Europe'
+		WHEN country IN ('Portugal','Spain','Italy','Croatia','Macedonia','Greece','Albania','Serbia','Slovenia','Malta') THEN 'Southern Europe'
+		WHEN country IN ('Armenia','Azerbaijan','Georgia','Israel','Turkey') THEN 'Western Asia'
+		WHEN country IN ('Kazakhstan') THEN 'Central Asia'
+		WHEN country IN ('Canada','Greenland') THEN 'Northern America'
+	ELSE country
+	END as analysis_region,
+	age_category,
+	dic_gen.Value_Label as gender,
+	dic_gra.Value_Label as grade,
+	year_of_birth,
+	dic_phy.Value_Label as physical_activity_past_7_days,
+	dic_vig.Value_Label as vigorous_physical_activity_frequency,
+	count (Distinct Pupil_no) as distinct_total_pupils
+FROM HBSC_2018 dat
+LEFT JOIN (SELECT * FROM HBSC_2018_data_dictionary WHERE lower(field_name)='gender') dic_gen
+	ON CAST(dat.Gender as varchar) = Cast(dic_gen.value as varchar)
+LEFT JOIN (SELECT * FROM HBSC_2018_data_dictionary WHERE lower(field_name)='grade') dic_gra
+	ON CAST(dat.Grade as varchar) = Cast(dic_gra.value as varchar)
+LEFT JOIN (SELECT * FROM HBSC_2018_data_dictionary WHERE lower(field_name)='physical_activity_past_7_days') dic_phy
+	ON CAST(dat.Physical_activity_past_7_days as varchar) = Cast(dic_phy.value as varchar)
+LEFT JOIN (SELECT * FROM HBSC_2018_data_dictionary WHERE lower(field_name)='vigorous_physical_activity_frequency') dic_vig
+	ON CAST(dat.Vigorous_physical_activity_frequency as varchar) = Cast(dic_vig.value as varchar)
+GROUP BY 
+	HBSC_round,
+	country,
+	age_category,
+	dic_gen.Value_Label,
+	dic_gra.Value_Label,
+	year_of_birth,
+	dic_phy.Value_Label,
+	dic_vig.Value_Label
