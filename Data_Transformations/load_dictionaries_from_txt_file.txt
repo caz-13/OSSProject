@@ -1,0 +1,193 @@
+/*----------------------------------------------------------------
+
+LOADING DATA DICTIONARIES IN FOR SHS DATA
+
+----------------------------------------------------------------*/
+
+-- STEP 1 - CREATE DBO TABLE TO LOAD TXT FILE INTO, WITH ROW ID IDENTITY. LOAD USING IMPORT WIZARD.
+
+CREATE TABLE [dbo].[shes21i_ukda_data_dictionary]
+(
+	[row_id] int IDENTITY(1,1) PRIMARY KEY,
+	[data_dictionary] varchar(4000) NULL
+) 
+GO
+
+-- Now load using import wizard
+
+SELECT * FROM [dbo].[shes21i_ukda_data_dictionary]
+
+-- STEP 2 - CLEANSE TEMP DATA DICTIONARY, SPLIT OUT INTO SEPARATE COLUMNS.
+
+--Get rid of annoying tabs
+UPDATE	[dbo].[shes21i_ukda_data_dictionary]
+SET		data_dictionary = RTRIM(LTRIM(REPLACE(data_dictionary, CHAR(9), ' ')));
+
+--Remove any commas from label descriptions
+SELECT	* 
+FROM	[dbo].[shes21i_ukda_data_dictionary]
+WHERE	data_dictionary like '%,%'
+AND		data_dictionary LIKE '%Value = %'
+
+UPDATE	[dbo].[shes21i_ukda_data_dictionary]
+SET		data_dictionary = REPLACE(data_dictionary, ',', '')
+WHERE	data_dictionary LIKE '%Value = %'
+AND		data_dictionary LIKE '%,%'
+
+--Subsections gets the sections of the dictionary split by field
+DROP TABLE IF EXISTS #SubSections;
+SELECT  row_id AS BeginningRowId
+	,	LEAD(row_id) OVER (ORDER BY row_id) AS EndingRowId
+	,	data_dictionary
+INTO	#SubSections
+FROM    [dbo].[shes21i_ukda_data_dictionary]
+WHERE	data_dictionary LIKE 'Pos. =%';
+
+SELECT * FROM #SubSections
+
+UPDATE	#SubSections
+SET		EndingRowId = (SELECT MAX(row_id) FROM [dbo].[shes21i_ukda_data_dictionary])
+WHERE	EndingRowId IS NULL;
+
+--Decoding gets all the values and labels in one field aligned with the table field they refer to
+DROP TABLE IF EXISTS #Decoding;
+SELECT  REPLACE(otf.data_dictionary, 'Value = ', ',')			AS DecodeValue
+	,	ss.data_dictionary			AS ColumnSection
+INTO	#Decoding
+FROM    #SubSections ss
+JOIN	[dbo].[shes21i_ukda_data_dictionary] otf
+ON		otf.row_id >= ss.BeginningRowId
+AND		otf.row_id <= ss.EndingRowId
+WHERE	otf.data_dictionary LIKE 'Value =%'
+ORDER	BY row_id;
+
+SELECT * FROM #Decoding
+
+--Replace the label string 
+DROP TABLE IF EXISTS #Decoding1;
+SELECT	DecodeValue
+,		REPLACE(value, ' Label = ', ',') AS value1
+,		REPLACE(ColumnSection, 'Variable label = ', ',') AS field_name1
+,		ColumnSection
+INTO	#decoding1
+FROM	#Decoding
+	CROSS APPLY string_split(DecodeValue, ',')
+WHERE VALUE <> ''
+
+SELECT * FROM #decoding1
+
+--Get values and labels separately, aligned with table field
+SELECT	REPLACE(SUBSTRING(value1, 1, CHARINDEX(',', value1)), ',', '') AS [Value]
+,		SUBSTRING(value1, CHARINDEX(',', value1)+1, len(value1)) AS [Value_Label]
+,		REPLACE(SUBSTRING(field_name1, CHARINDEX(',', field_name1)+1, len(field_name1)), ' ', '_') AS field_name
+INTO	dbo.shes21i_eul_data_dictionary
+FROM	#decoding1
+
+--Remove duplicate negative values, just keep a 'universal' field
+SELECT DISTINCT [Value], [Value_Label]
+FROM dbo.shes21i_eul_data_dictionary
+WHERE [Value] LIKE '%-%'
+ORDER BY [Value]
+
+SELECT * FROM dbo.shes21i_eul_data_dictionary
+
+--INSERT INTO dbo.shes21i_eul_data_dictionary
+--	( [Value]
+--	, [Value_Label]
+--	, field_name)
+--	SELECT DISTINCT [Value], [Value_Label], 'Universal'
+--	FROM	dbo.shes21i_eul_data_dictionary
+--	--WHERE	[Value] LIKE '%-%'
+--	WHERE [Value] IN ('-2.0', '-3.0', '-6.0')
+
+--DELETE FROM dbo.shes21i_eul_data_dictionary
+--WHERE [Value] like '%-%'
+--AND field_name <> 'Universal'
+
+SELECT * FROM dbo.shes21i_eul_data_dictionary
+WHERE field_name LIKE '%(d)%'
+
+-- STEP 3 - ADD CLEANSED DATA DICTIONARY TO BASE TABLE
+
+SELECT	* 
+INTO	base.shes21i_eul_data_dictionary
+FROM	dbo.shes21i_eul_data_dictionary
+
+BEGIN TRAN
+
+	UPDATE	dbo.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '(D)_', '')
+	WHERE	field_name like '%(D)_%'
+
+	UPDATE	dbo.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '_(recoded)', '')
+	WHERE	field_name like '%_(recoded)%'
+
+	UPDATE	dbo.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '_(Core/Bio/Boost)', '')
+	WHERE	field_name like '%Sample_type_(Core/Bio/Boost)%'
+
+ROLLBACK
+-- COMMIT
+
+
+--only adding relevant fields in (rest will still be in dbo table if needed)
+SELECT	*
+INTO	base.shes21i_eul_data_dictionary
+FROM	dbo.shes21i_eul_data_dictionary
+WHERE	field_name IN 
+		(SELECT		c.[name] 
+		 FROM		sys.columns c
+		 JOIN		sys.objects o
+		 ON			o.object_id = c.object_id
+		 WHERE		type_desc = 'USER_TABLE'
+		 AND		SCHEMA_ID = 1
+		 AND		o.[name] LIKE '%shes21i%'
+		 )
+
+SELECT * FROM base.shes21i_eul_data_dictionary
+ORDER BY field_name, [Value]
+
+-- STEP 4 - UPDATE DICTIONARY FIELD NAMES TO MATCH ANY CHANGES MADE TO TABLE FIELD NAMES, CHECK FIELD NAMES MATCH UP
+
+SELECT TOP 1 *
+FROM base.shes21h_eul
+
+SELECT	*
+FROM	base.shes21i_eul_data_dictionary
+WHERE	field_name like '%(%)%'
+
+SELECT	DISTINCT field_name
+FROM	base.shes21i_eul_data_dictionary
+
+BEGIN TRAN
+
+	UPDATE	base.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '(D)_', '')
+	WHERE	field_name like '%(D)_%'
+
+	UPDATE	base.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '_(recoded)', '')
+	WHERE	field_name like '%_(recoded)%'
+
+	UPDATE	base.shes21i_eul_data_dictionary
+	SET		field_name  = REPLACE(field_name, '_(Core/Bio/Boost)', '')
+	WHERE	field_name like '%Sample_type_(Core/Bio/Boost)%'
+
+ROLLBACK
+-- COMMIT
+
+SELECT	DISTINCT c.TABLE_NAME, c.COLUMN_NAME, d.field_name
+FROM	INFORMATION_SCHEMA.COLUMNS c
+LEFT JOIN	base.shes21i_eul_data_dictionary d
+ON		c.COLUMN_NAME = d.field_name
+WHERE	TABLE_SCHEMA = 'base'
+AND		TABLE_NAME IN ('shes21i_eul')
+ORDER BY COLUMN_NAME ASC
+
+-- Undecided if I want to delete these extra fields from the data dictionary
+-- They're not in the data, however might be a good place to have a record of what other fields could be added should the analytics team want them
+SELECT	field_name
+FROM	base.shes21i_eul_data_dictionary
+WHERE	field_name NOT IN (SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'base' AND TABLE_NAME = 'shes21h_eul')
+
